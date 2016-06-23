@@ -1,4 +1,4 @@
-# pydslice
+# Pydslice
 GDB Python extension for creating [dynamic slices](https://en.wikipedia.org/wiki/Program_slicing#Dynamic_slicing)
 
 Leverages GDB's [record](https://sourceware.org/gdb/onlinedocs/gdb/Process-Record-and-Replay.html) and [reverse stepping](https://sourceware.org/gdb/onlinedocs/gdb/Reverse-Execution.html#Reverse-Execution) capabilities for computing dynamic slices. The goal is to identify a list of instructions which were responsible for maniuplating data (memory addresses or registers) that lead to the crash. Useful for debugging hard-to-follow bugs or reverse-engineering.
