@@ -10,13 +10,13 @@ Leverages GDB's [record](https://sourceware.org/gdb/onlinedocs/gdb/Process-Recor
 * Optionally uses debug symbol information to determine source code lines and variable names of addresses
 
 ## Prerequisites
-* GDB and Python3 must be installed on the system
+* GDB and Python must be installed on the system
 * GDB's record and reverse stepping capbilities must also be supported
 
 ## Installation
 ```
-# Install PyDSlice library.
-sudo python3 setup.py install
+# Install PyDSlice library. Be sure to use the same version of Python that GDB uses
+sudo python setup.py install
 
 # copy/move pydslice_gdb_cmds.py to GDB's data-directory/python/gdb/command/. 
 # GDB's data-directory can be found using the gdb command "show data-directory"
@@ -113,7 +113,7 @@ This instruction caused the heap corruption:
 * Flag and Floating point registers are not supported
 
 ## Notes
-* Only tested on Ubuntu 14.04 with GDB version 7.10 and Python version 3.4
+* Only tested on Ubuntu 14.04 with GDB version 7.10 and Python version 3.4 and 2.7
 * Note that GDB, based on configuration, will record a maximum number of instructions
 * Performance of recording/slice computation is better with statically linked executables (avoids recording of loading shared objects from the file system, etc..)
 * This slice software, by default, ignores the stack and frame registers for operands during slice computation as it would flood the slice with additional instructions that are purely just for making function calls. However, if $pc is corrupt, the frame and stack registers will be included as part of the slice.
