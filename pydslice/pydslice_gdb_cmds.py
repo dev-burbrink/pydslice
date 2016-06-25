@@ -47,7 +47,7 @@ class CmdSlice(gdb.Command):
                 return
 
             gdb.write("Computing slice...\n")
-            slice.compute_slice(0,0)
+            slice.compute_slice(False)
 
         except Exception:
             traceback.print_exc()
@@ -123,7 +123,7 @@ class CmdSliceStep(gdb.Command):
                        "'slice new crashed'\n")
                 return
             gdb.write("Finding next slice instruction...\n")
-            slice.compute_slice(True, from_tty)
+            slice.compute_slice(True)
         except Exception:
             traceback.print_exc()
 
