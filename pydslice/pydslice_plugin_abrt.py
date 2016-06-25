@@ -23,21 +23,6 @@ def abrt_match_register(insn, matches, to_add, slice):
         if operand.operand_type == OPERAND_TYPE_REGISTER:
             operand.match_function = abrt_match_register
 
-def abrt_match_memory_int_free(insn, matches, to_add, slice):
-    global found_instruction
-
-    if slice.debugger.inside_file("malloc.c"):
-        abrt_match_register(insn, matches, to_add, slice)
-        return
-
-    if found_instruction == False:
-        slice.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
-                "This instruction caused the double free:")
-        slice.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, insn.to_string(False))
-        insn.comment = insn.comment + " Cause of double free"
-        slice.stop()
-        found_instruction = True
-
 def abrt_match_memory_malloc_assert(insn, matches, to_add, slice):
     global found_instruction
 
