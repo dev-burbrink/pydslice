@@ -473,9 +473,9 @@ class GDBDebugger(Debugger):
     def inside_function(self, function_name):
         frame = gdb.selected_frame()
         while frame:
-            frame_function = frame.function()
+            frame_function = frame.name()
             if frame_function:
-                if function_name == frame_function.print_name:
+                if function_name == frame_function.__str__():
                     return True
             frame = frame.older()
         return False
