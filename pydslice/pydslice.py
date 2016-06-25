@@ -110,6 +110,7 @@ class Slice():
             if current_level < DEBUG_PRINT_LEVEL_INFO and \
                     (insn.opcode == "call" or insn.opcode == "ret" or \
                     insn.opcode == "leave"):
+                index = index + 1
                 continue
             str = "%d\t%s" % (index+1, insn.to_string(verbose))
             self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, str)
@@ -164,7 +165,7 @@ class Slice():
     # Removes specified instruction from slice
     def delete_insn(self, index):
         self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
-                "Removed insn (%d): %s" % (index, self.insn_list[index].text))
+                "Removed insn (%d): %s" % (index+1, self.insn_list[index].text))
         self.insn_list.remove(self.insn_list[index])
 
     # Adds an expression to the list of slice operand

@@ -314,7 +314,7 @@ class CmdSliceInsnDel(gdb.Command):
         if arg == "":
             gdb.write("Usage: slice insn delete #\n") 
         else:
-            slice.delete_insn(int(arg[0]) - 1)
+            slice.delete_insn(int(arg) - 1)
 
 CmdSliceInsnDel()
 
