@@ -4,15 +4,21 @@
 #
 # Copyright (C) 2016 Josh Burbrink <dev.burbrink@gmail.com>
 
-import pydslice.pydslice_debugger
-from pydslice.pydslice_debugger import *
-from pydslice.pydslice_debugger_gdb import *
-from pydslice.pydslice_parser_x86 import *
-from pydslice.pydslice_parser_x86_64 import *
-from pydslice.pydslice_insn import *
-from pydslice.pydslice_operand import *
-from time import sleep
-            
+try:
+    from pydslice_debugger_gdb import *
+    from pydslice_debugger import *
+    from pydslice_parser_x86 import *
+    from pydslice_parser_x86_64 import *
+    from pydslice_insn import *
+    from pydslice_operand import *
+except ImportError:
+    from pydslice.pydslice_debugger_gdb import *
+    from pydslice.pydslice_debugger import *
+    from pydslice.pydslice_parser_x86 import *
+    from pydslice.pydslice_parser_x86_64 import *
+    from pydslice.pydslice_insn import *
+    from pydslice.pydslice_operand import *
+
 # callback signature: 
 # void callback(insn, matching_operands, operands_to_add, slice)
 callbacks = []
@@ -56,7 +62,7 @@ class Slice():
         with open(path, 'w') as f:
             for insn in self.insn_list:
                 f.write(insn.to_string(False)+ "\n");
-        self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, "Slice saved to " + path)
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, "Slice saved to " + path)
 
     # Sets operand to be followed
     def set_followed_operand(self, operand):
@@ -68,48 +74,52 @@ class Slice():
     # Prints current list of slice operand
     def print_operand_list(self):
         index = 1
-        self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, "--- operand list ---")
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, "--- operand list ---")
         for t in self.operand_list:
             str = "%d\t%s" % (index, t.to_string())
             if t == self.followed_operand:
                 str = str + " (following)"
-            self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, str)
+            self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, str)
             index = index + 1
-        self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, "")
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, "")
      
     # Prints all instruction currently in the slice
     def print_insn_list(self, index=1, count=-1, verbose=False):
-        if pydslice.pydslice_debugger.debug_print_level > DEBUG_PRINT_LEVEL_INFO:
+        try:
+            current_level = pydslice_debugger.debug_print_level
+        except NameError:
+            current_level = pydslice.pydslice_debugger.debug_print_level
+        
+        if current_level > DEBUG_PRINT_LEVEL_INFO:
             verbose = True
         
         index = index - 1
-
+        
         if count == -1:
             max = len(self.insn_list)
         else:
             max = index + count
 
-        self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                 "--- slice instructions ---")
         if len(self.insn_list) == 0:
-            self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, "no instructions")
+            self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, "no instructions")
             return
 
         for insn in self.insn_list[index:max]:
-            if pydslice.pydslice_debugger.debug_print_level < \
-                    DEBUG_PRINT_LEVEL_INFO and \
+            if current_level < DEBUG_PRINT_LEVEL_INFO and \
                     (insn.opcode == "call" or insn.opcode == "ret" or \
                     insn.opcode == "leave"):
                 continue
             str = "%d\t%s" % (index+1, insn.to_string(verbose))
-            self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, str)
+            self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, str)
             index = index + 1
-        self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, "")
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, "")
    
     # Prints a specific instruction in the operand list
     def print_insn_list_index(self, index):
         str = "%d - %s" % (index, self.insn_list[index-1].to_string(True))
-        self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, str)
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, str)
 
     # Adds an instruction to the list of instructions in the slice
     def add_insn(self, insn):
@@ -148,12 +158,12 @@ class Slice():
             if exists == False:
                 self.add_operand(item)
         self.insn_list.append(self.insn)
-        self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                 "Added insn: " + self.insn.text)
 
     # Removes specified instruction from slice
     def delete_insn(self, index):
-        self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                 "Removed insn (%d): %s" % (index, self.insn_list[index].text))
         self.insn_list.remove(self.insn_list[index])
 
@@ -163,7 +173,7 @@ class Slice():
    
     # Removes operand from slice operand list
     def remove_operand_list_index(self, index):
-        self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                 "Removed operand (%d): %s" % \
                 (index+1, self.operand_list[index].to_string()))
         self.operand_list.remove(self.operand_list[index]) 
@@ -229,7 +239,7 @@ class Slice():
             opcode = insn_text.split()[0]
         
         if self.pc == self.last_pc and "rep" not in opcode:
-            self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+            self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                     "Reached end of recording")
             return False 
 
@@ -239,7 +249,7 @@ class Slice():
     def compute_slice(self, stepping):
 
         if not self.operand_list:
-            self.debugger.print(DEBUG_PRINT_ALWAYS, "No operands to track. " \
+            self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, "No operands to track. " \
                     "Add new operands with 'slice operand add' or " \
                     "'slice new crashed'")
 
@@ -255,23 +265,23 @@ class Slice():
                 self.add_insn(self.insn)
 
             if self.operand_list.__len__() == 0:
-                self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, "Slice complete")
+                self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, "Slice complete")
                 break
 
             if not self.reverse_step():
                 break
 
             if found_operand:
-                self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+                self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                         "At Instruction:")
-                self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+                self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                         self.insn.to_string(False))
                 break
 
             if stepping and found_insn:
-                self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+                self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                         "Next slice instruction found:")
-                self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+                self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                         self.insn.to_string(False))
                 break
 

@@ -5,7 +5,10 @@
 # Copyright (C) 2016 Josh Burbrink <dev.burbrink@gmail.com>
 #
 
-from pydslice.pydslice_operand import *
+try:
+    from pydslice_operand import *
+except ImportError:
+    from pydslice.pydslice_operand import *
 
 class Insn():
     comment = ""

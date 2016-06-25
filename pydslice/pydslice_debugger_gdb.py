@@ -8,11 +8,16 @@
 import gdb
 import re
 
-import pydslice.pydslice_debugger
-from pydslice.pydslice_debugger import *
-from pydslice.pydslice_parser_x86 import Parser
-from pydslice.pydslice_operand import *
-import traceback
+try:
+    import pydslice_debugger
+    from pydslice_debugger import *
+    from pydslice_parser_x86 import Parser
+    from pydslice_operand import *
+except ImportError:
+    import pydslice.pydslice_debugger
+    from pydslice.pydslice_debugger import *
+    from pydslice.pydslice_parser_x86 import Parser
+    from pydslice.pydslice_operand import *
 
 gdb_signals = [
     "",
@@ -181,8 +186,13 @@ class GDBDebugger(Debugger):
         gdb.execute("set disassembly-flavor intel", False, to_string=True)
     
     # Prints string to gdb based on current debug level
-    def print(self, level, str):
-        if level <= pydslice.pydslice_debugger.debug_print_level:
+    def print_msg(self, level, str):
+        try:
+            current_level = pydslice_debugger.debug_print_level
+        except NameError:
+            current_level = pydslice.pydslice_debugger.debug_print_level
+
+        if level <= current_level:
             gdb.write(str + '\n')
             gdb.flush()
 
@@ -208,8 +218,12 @@ class GDBDebugger(Debugger):
    
     # Gets symbol information about the current line of code
     def get_line_info(self):
-        if pydslice.pydslice_debugger.debug_symbol_level < \
-                DEBUG_SYMBOL_LEVEL_LINES:
+        try:
+            current_level = pydslice_debugger.debug_symbol_level
+        except NameError:
+            current_level = pydslice.pydslice_debugger.debug_symbol_level
+
+        if  current_level< DEBUG_SYMBOL_LEVEL_LINES:
             return "","",""
 
         try:
@@ -228,9 +242,12 @@ class GDBDebugger(Debugger):
 
     # Get symbol info for address
     def get_addr_info(self, address):
+        try:
+            current_level = pydslice_debugger.debug_symbol_level
+        except:
+            current_level = pydslice.pydslice_debugger.debug_symbol_level
 
-        if pydslice.pydslice_debugger.debug_symbol_level < \
-                DEBUG_SYMBOL_LEVEL_VARIABLES:
+        if current_level < DEBUG_SYMBOL_LEVEL_VARIABLES:
             return ''
 
         addr = '0x%x' % address
@@ -299,7 +316,7 @@ class GDBDebugger(Debugger):
             val = int(gdb.parse_and_eval(expr).__str__().split()[0], 16)
             return val
         except:
-            self.print(DEBUG_PRINT_WARNING, "GDB failed to parse arg %s" %expr)
+            self.print_msg(DEBUG_PRINT_WARNING, "GDB failed to parse arg %s" %expr)
             return 0
 
     # Evaluates an expression as an address
@@ -371,7 +388,7 @@ class GDBDebugger(Debugger):
                     # non-existant physical address. 
                     # These operands were used in the invalid dereference
                     slice.add_operand(operand)
-            self.print(DEBUG_PRINT_LEVEL_ALWAYS, "Signal: SIGBUS\n");
+            self.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, "Signal: SIGBUS\n");
             slice.print_operand_list()
             slice.print_insn_list(verbose=False)
             self.reverse_step()
@@ -383,7 +400,7 @@ class GDBDebugger(Debugger):
             crash_insn.set_line_info(line,file,sym)
             slice.parser.monitor_stack = False
             slice.add_insn(crash_insn)
-            self.print(DEBUG_PRINT_LEVEL_ALWAYS, crash_insn.to_string(False)) 
+            self.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, crash_insn.to_string(False)) 
             for operand in crash_insn.src_list:
                 if crash_insn.opcode in ["ret", "leave", "pop", "push"] or \
                         (operand.operand_type == OPERAND_TYPE_REGISTER and \
@@ -396,7 +413,7 @@ class GDBDebugger(Debugger):
                         slice.parser.monitor_stack = True
                         print("Monitoring stack")
 
-            self.print(DEBUG_PRINT_LEVEL_ALWAYS, "Signal: SIGSEGV\n");
+            self.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, "Signal: SIGSEGV\n");
             slice.print_operand_list()
             slice.print_insn_list(verbose=False)
             self.reverse_step()
@@ -430,13 +447,13 @@ class GDBDebugger(Debugger):
                     operand.base_register = ['eip']
                 slice.add_operand(operand)
                 slice.parser.monitor_stack = True
-                self.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+                self.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                         "$pc (0x%x) is invalid" % pc)
                 slice.print_operand_list()
                 slice.print_insn_list(verbose=False)
                 self.do_init_callbacks(init_callbacks, slice)
             else:
-                self.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+                self.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                         "Unhandled signal %d : %s" % (slice.signal, \
                         gdb_signals[slice.signal]))
         

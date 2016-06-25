@@ -19,9 +19,8 @@ import sys
 import traceback
 from array import *
 
-import pydslice.pydslice_debugger
-from pydslice.pydslice_debugger import * 
 from pydslice import Slice
+from pydslice.pydslice_debugger import * 
 
 # Import pydslice plug-ins here:
 import pydslice.pydslice_plugin_abrt
@@ -257,14 +256,17 @@ class CmdSliceInsnList(gdb.Command):
 
     def invoke (self, arg, from_tty):
         global slice
-        if slice == None:
-            gdb.write("Slice not initialized. Execute 'slice new' or " \
-                    "'slice new crashed'\n")
-            return
+        try:
+            if slice == None:
+                gdb.write("Slice not initialized. Execute 'slice new' or " \
+                        "'slice new crashed'\n")
+                return
 
-        if arg == "":
-            slice.print_insn_list()
-            return
+            if arg == "":
+                slice.print_insn_list()
+                return
+        except:
+            traceback.print_exc()
 
         args = arg.split()
         if len(args) == 1:

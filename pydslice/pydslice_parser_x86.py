@@ -7,12 +7,20 @@
 
 import re
 
-from pydslice.pydslice_insn import Insn
-from pydslice.pydslice_debugger import *
-from pydslice.pydslice_insn import *
-from pydslice.pydslice_parser import Parser
-from pydslice.pydslice_operand import * 
-from pydslice.pydslice_x86_defs import *
+try:
+    from pydslice_insn import Insn
+    from pydslice_debugger import *
+    from pydslice_insn import *
+    from pydslice_parser import Parser
+    from pydslice_operand import *
+    from pydslice_x86_defs import *
+except ImportError:
+    from pydslice.pydslice_insn import Insn
+    from pydslice.pydslice_debugger import *
+    from pydslice.pydslice_insn import *
+    from pydslice.pydslice_parser import Parser
+    from pydslice.pydslice_operand import *
+    from pydslice.pydslice_x86_defs import *
 
 class Parser_x86(Parser):
     debugger = None
@@ -96,7 +104,7 @@ class Parser_x86(Parser):
         if arg.startswith("FWORD"):
             return 6
 
-        self.debugger.print(DEBUG_PRINT_LEVEL_WARNING, "Unknown ptr %s" % arg)
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_WARNING, "Unknown ptr %s" % arg)
         return 0
 
     # Parse x86 blend opcodes
@@ -464,7 +472,7 @@ class Parser_x86(Parser):
             
     # Error parsing instruction 
     def parse_error(self, insn, args):
-        self.debugger.print(DEBUG_PRINT_LEVEL_ERROR, \
+        self.debugger.print_msg(DEBUG_PRINT_LEVEL_ERROR, \
                 "Got an Error - insn %s" % insn.text)
     
     # Parses opcode argument as memory type
@@ -519,7 +527,7 @@ class Parser_x86(Parser):
                 operand.base_register = self.registers[reg[1:]]
                 insn.add_operand(operand, OPERAND_DIRECTION_SRC)
                 continue
-            self.debugger.print(DEBUG_PRINT_LEVEL_VERBOSE, \
+            self.debugger.print_msg(DEBUG_PRINT_LEVEL_VERBOSE, \
                     "Unknown Operand: " + arg[i:] + " - Insn: " + insn.text)
             return
 
@@ -549,7 +557,7 @@ class Parser_x86(Parser):
             size = self.get_ptr_size(tok[0])
             
             if size == 0:
-                self.debugger.print(DEBUG_PRINT_LEVEL_VERBOSE, \
+                self.debugger.print_msg(DEBUG_PRINT_LEVEL_VERBOSE, \
                         "Unknown size: %s - Insn: %s" % (tok[0], insn.text))
             
             if tok[2] == "gs:":
@@ -586,7 +594,7 @@ class Parser_x86(Parser):
                 operand.base_register = self.registers[arg]
                 insn.add_operand(operand, operand_direction)
         else:
-            self.debugger.print(DEBUG_PRINT_LEVEL_VERBOSE, \
+            self.debugger.print_msg(DEBUG_PRINT_LEVEL_VERBOSE, \
                     "Unknown Operand: " + arg + " - Insn: " + insn.text)
    
     # Adds an expression to a list of operand
@@ -597,7 +605,7 @@ class Parser_x86(Parser):
             operand_type = OPERAND_TYPE_REGISTER
             operand = Operand(operand_type, False, address, value)
             operand.base_register = self.registers[expr[1:]]
-            self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+            self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                     "added register %s" % address)
         else:
             # assume expression that is memory address - may want size
@@ -605,7 +613,7 @@ class Parser_x86(Parser):
             value = self.debugger.read_byte(address)
             operand_type = OPERAND_TYPE_MEMORY
             operand = Operand(operand_type, False, address, value)
-            self.debugger.print(DEBUG_PRINT_LEVEL_ALWAYS, \
+            self.debugger.print_msg(DEBUG_PRINT_LEVEL_ALWAYS, \
                     "added address %s" % address)
 
         operand_list.append(operand)
@@ -638,7 +646,7 @@ class Parser_x86(Parser):
             if insn.opcode2 in self.x86_parse_opcode_fxn.keys():
                 self.x86_parse_opcode_fxn[insn.opcode2](self, insn, args)
             else:
-                self.debugger.print(DEBUG_PRINT_LEVEL_VERBOSE, \
+                self.debugger.print_msg(DEBUG_PRINT_LEVEL_VERBOSE, \
                         "Unknown Opcode: %s - Insn: %s" % \
                         (insn.opcode2, insn.text))
         else:
@@ -650,7 +658,7 @@ class Parser_x86(Parser):
             if insn.opcode in self.x86_parse_opcode_fxn.keys():
                 self.x86_parse_opcode_fxn[insn.opcode](self, insn, args)
             else:
-                self.debugger.print(DEBUG_PRINT_LEVEL_VERBOSE, \
+                self.debugger.print_msg(DEBUG_PRINT_LEVEL_VERBOSE, \
                         "Unknown Opcode: %s - Insn: %s" % \
                         (insn.opcode, insn.text))
         

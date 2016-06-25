@@ -5,10 +5,16 @@
 # Copyright (C) 2016 Josh Burbrink <dev.burbrink@gmail.com>
 #
 
-from pydslice.pydslice_debugger import *
-from pydslice.pydslice_x86_defs import *
-from pydslice.pydslice_operand import * 
-from pydslice.pydslice_parser_x86 import * 
+try:
+    from pydslice_debugger import *
+    from pydslice_x86_defs import *
+    from pydslice_operand import *
+    from pydslice_parser_x86 import *
+except ImportError:
+    from pydslice.pydslice_debugger import *
+    from pydslice.pydslice_x86_defs import *
+    from pydslice.pydslice_operand import *
+    from pydslice.pydslice_parser_x86 import *
 
 class Parser_x86_64(Parser_x86):
     

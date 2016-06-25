@@ -28,7 +28,7 @@ class Debugger():
         pass
 
     # Prints string to debugger
-    def print(self, level, str):
+    def print_msg(self, level, str):
         pass
 
     # Gets the value of $pc
