@@ -11,14 +11,10 @@ try:
 except ImportError:
     from distutils.core import setup
 
-print(sys.version_info)
-if sys.version_info < (3,0):
-    raise NotImplementedError("Sorry, you need at least Python 3.x to use pydslice.")
-
 #import pydslice 
 
 setup(name='pydslice',
-      version='1.0',
+      version='1.0.1',
       description='Python library for computing dynamic slices using a debugger',
       long_description='Python library for computing dynamic slices using a debugger',
       author='Josh Burbrink',
@@ -31,6 +27,6 @@ setup(name='pydslice',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: LGPL License',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
-        'Programming Language :: Python :: 3.x',
+        'Programming Language :: Python',
         ],
      )
