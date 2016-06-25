@@ -124,6 +124,10 @@ class Slice():
         self.pc = self.debugger.get_pc()
         self.insn = self.parser.parse_insn(self.pc)
         to_add = []
+
+        line,file,sym = self.debugger.get_line_info()
+        self.insn.set_line_info(line,file,sym)
+
         # Add instruction's src operand to the slice operand
         for s in self.insn.src_list:
             # ... unless it should be ignored
@@ -232,8 +236,13 @@ class Slice():
         return True
     
     # Computes the rest of the slice or steps to the next slice instruction
-    def compute_slice(self, stepping, from_tty):
-        
+    def compute_slice(self, stepping):
+
+        if not self.operand_list:
+            self.debugger.print(DEBUG_PRINT_ALWAYS, "No operands to track. " \
+                    "Add new operands with 'slice operand add' or " \
+                    "'slice new crashed'")
+
         self.keep_going = True
         self.pc = self.debugger.get_pc()
 
