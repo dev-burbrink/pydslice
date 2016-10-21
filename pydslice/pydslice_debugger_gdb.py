@@ -350,7 +350,11 @@ class GDBDebugger(Debugger):
         for section in sections:
             if "CODE" in section:
                 s = section.split()
-                mem_range = s[1].split("->")
+                if "->" in s[0]:
+                    mem_range = s[0].split("->")
+                else:
+                    mem_range = s[1].split("->")
+                        
                 # is the address in the memory range of the section?
                 if address >= int(mem_range[0],16) and \
                         address <= int(mem_range[1],16):
