@@ -14,7 +14,7 @@ except ImportError:
 #import pydslice 
 
 setup(name='pydslice',
-      version='1.0.1',
+      version='1.0.2',
       description='Python library for computing dynamic slices using a debugger',
       long_description='Python library for computing dynamic slices using a debugger',
       author='Josh Burbrink',

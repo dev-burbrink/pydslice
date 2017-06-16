@@ -18,9 +18,16 @@ Leverages GDB's [record](https://sourceware.org/gdb/onlinedocs/gdb/Process-Recor
 # Install PyDSlice library. Be sure to use the same version of Python that GDB uses
 sudo python setup.py install
 
+# PyDSlice can also be installed via pip
+sudo pip install pydslice
+
 # copy/move pydslice_gdb_cmds.py to GDB's data-directory/python/gdb/command/. 
 # GDB's data-directory can be found using the gdb command "show data-directory"
 cp pydslice_gdb_cmds.py /usr/share/gdb/python/gdb/command/
+
+# Alternatively, add the following line to your GDB init file to include the PyDSlice commands (Update the command to correspond to your system paths)
+source /usr/local/lib/python2.7/dist-packages/pydslice/pydslice_gdb_cmds.py
+
 ```
 
 ## Usage
